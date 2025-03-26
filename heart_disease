@@ -1,0 +1,55 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+import os
+
+# Load the dataset with error handling
+file_path = r'C:\Users\saich\Desktop\Heart Disease\dataset.csv'  # Updated filename and path
+if not os.path.exists(file_path):
+    print(f"Error: File '{file_path}' not found. Please check the path.")
+else:
+    df = pd.read_csv(file_path)
+
+    # Display basic info and first few rows
+    print(df.info())
+    print(df.head())
+
+    # Check for missing values
+    print(df.isnull().sum())
+
+    # Feature selection
+    X = df.drop(columns=['target'])  # Features
+    y = df['target']  # Target variable
+
+    # Split the dataset
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+    # Standardize numerical features
+    scaler = StandardScaler()
+    X_train = scaler.fit_transform(X_train)
+    X_test = scaler.transform(X_test)
+
+    # Train logistic regression model
+    model = LogisticRegression()
+    model.fit(X_train, y_train)
+
+    # Predictions
+    y_pred = model.predict(X_test)
+
+    # Evaluate model
+    accuracy = accuracy_score(y_test, y_pred)
+    print(f'Accuracy: {accuracy:.2f}')
+    print(classification_report(y_test, y_pred))
+    print('Confusion Matrix:\n', confusion_matrix(y_test, y_pred))
+
+    # Visualizing Confusion Matrix
+    sns.heatmap(confusion_matrix(y_test, y_pred), annot=True, fmt='d', cmap='Blues')
+    plt.xlabel('Predicted')
+    plt.ylabel('Actual')
+    plt.title('Confusion Matrix')
+    plt.show()
